@@ -1,3 +1,6 @@
+import { notFound } from "next/navigation";
+import { getProductById } from "@/services/products.service";
+
 interface ProductDetailProps {
   params: Promise<{
     id: string;
@@ -7,10 +10,24 @@ interface ProductDetailProps {
 export default async function ProductDetail({ params }: ProductDetailProps) {
   const { id } = await params;
 
+  const productId = Number(id);
+
+  if (Number.isNaN(productId)) {
+    notFound();
+  }
+
+  const product = await getProductById(productId);
+
+  if (!product) {
+    notFound();
+  }
+
   return (
     <main className="mx-auto max-w-7xl px-6 py-16">
       <div className="mb-8">
-        <p className="text-sm font-semibold text-blue-600">Producto #{id}</p>
+        <p className="text-sm font-semibold text-blue-600">
+          Producto #{product.id}
+        </p>
 
         <h1 className="mt-2 text-4xl font-bold tracking-tight text-slate-900">
           Detalle del producto
@@ -29,18 +46,16 @@ export default async function ProductDetail({ params }: ProductDetailProps) {
             Tecnología
           </span>
 
-          <h2 className="text-3xl font-bold text-slate-900">
-            Nombre del producto
-          </h2>
+          <h2 className="text-3xl font-bold text-slate-900">{product.name}</h2>
 
-          <p className="mt-4 leading-7 text-slate-600">
-            Aquí se mostrará la descripción completa del producto seleccionado.
+          <p className="mt-4 leading-7 text-slate-600">{product.description}</p>
+
+          <p className="mt-8 text-3xl font-bold text-slate-900">
+            ${product.price}
           </p>
 
-          <p className="mt-8 text-3xl font-bold text-slate-900">$0</p>
-
           <p className="mt-2 text-sm font-medium text-green-600">
-            Stock disponible: 0
+            Stock disponible: {product.stock}
           </p>
 
           <button className="mt-8 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">

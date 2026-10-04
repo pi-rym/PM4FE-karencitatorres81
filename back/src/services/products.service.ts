@@ -5,9 +5,18 @@ export const checkProductExists = async (itemId: number): Promise<boolean> => {
   const item: Product | null = await ProductRepository.findOneBy({
     id: itemId,
   });
+
   return !!item;
 };
 
 export const getProductsService = async (): Promise<Product[]> => {
   return await ProductRepository.find();
+};
+
+export const getProductByIdService = async (
+  productId: number,
+): Promise<Product | null> => {
+  return await ProductRepository.findOneBy({
+    id: productId,
+  });
 };
