@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { IProductCardProps } from "./IProductCardProps";
 
 export default function ProductCard({
+  id,
   name,
   description,
   price,
@@ -28,9 +30,12 @@ export default function ProductCard({
         </p>
       </div>
 
-      <button className="mt-6 w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700">
+      <Link
+        href={`/product/${id}`}
+        className="mt-6 block w-full rounded-xl bg-blue-600 px-4 py-3 text-center font-semibold text-white transition hover:bg-blue-700"
+      >
         Ver producto
-      </button>
+      </Link>
     </article>
   );
 }

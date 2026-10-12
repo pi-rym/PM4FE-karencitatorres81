@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getProductById } from "@/services/products.service";
+import AddToCartButton from "@/components/AddToCartButton";
 
 interface ProductDetailProps {
   params: Promise<{
@@ -8,16 +9,20 @@ interface ProductDetailProps {
 }
 
 export default async function ProductDetail({ params }: ProductDetailProps) {
+  // Obtener el ID del producto desde la URL
   const { id } = await params;
 
   const productId = Number(id);
 
-  if (Number.isNaN(productId)) {
+  // Validar que el ID sea un número válido
+  if (!Number.isInteger(productId) || productId <= 0) {
     notFound();
   }
 
+  // Consultar el producto en el backend
   const product = await getProductById(productId);
 
+  // Si no existe, mostrar página no encontrada
   if (!product) {
     notFound();
   }
@@ -35,12 +40,14 @@ export default async function ProductDetail({ params }: ProductDetailProps) {
       </div>
 
       <section className="grid gap-10 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm md:grid-cols-2">
+        {/* Imagen del producto */}
         <div className="flex min-h-80 items-center justify-center rounded-xl bg-slate-100">
           <span className="text-lg font-medium text-slate-400">
             Imagen del producto
           </span>
         </div>
 
+        {/* Información del producto */}
         <div className="flex flex-col justify-center">
           <span className="mb-3 w-fit rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
             Tecnología
@@ -58,9 +65,13 @@ export default async function ProductDetail({ params }: ProductDetailProps) {
             Stock disponible: {product.stock}
           </p>
 
-          <button className="mt-8 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
-            Agregar al carrito
-          </button>
+          {/* Botón conectado al carrito */}
+          <AddToCartButton
+            productId={product.id}
+            name={product.name}
+            price={Number(product.price)}
+            stock={product.stock}
+          />
         </div>
       </section>
     </main>

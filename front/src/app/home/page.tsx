@@ -3,6 +3,7 @@ import { getProducts } from "@/services/products.service";
 
 export default async function Home() {
   const products = await getProducts();
+
   return (
     <main>
       <section className="mx-auto max-w-7xl px-6 py-16">
@@ -25,6 +26,7 @@ export default async function Home() {
           {products.map((product) => (
             <ProductCard
               key={product.id}
+              id={product.id}
               name={product.name}
               description={product.description}
               price={product.price}
