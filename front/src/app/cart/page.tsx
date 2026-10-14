@@ -17,14 +17,14 @@ export default function Cart() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
 
-  // Proteger el acceso al carrito
+  // Proteger el carrito de usuarios sin sesión
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.replace("/login");
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Finalizar compra
+  // Registrar la compra
   const handleCheckout = async () => {
     if (isProcessing || cart.length === 0) {
       return;
@@ -32,7 +32,7 @@ export default function Cart() {
 
     setError("");
 
-    // La versión actual admite una unidad por producto
+    // Solo permitimos una unidad por producto
     const hasMultipleUnits = cart.some((product) => product.quantity !== 1);
 
     if (hasMultipleUnits) {
@@ -45,22 +45,30 @@ export default function Cart() {
     try {
       setIsProcessing(true);
 
+      // Obtener los IDs de los productos seleccionados
       const productIds = cart.map((product) => product.id);
 
-      // Guardar la compra en PostgreSQL
-      await createOrder(productIds);
+      // Enviar la compra al backend
+      const order = await createOrder(productIds);
 
-      // Vaciar el carrito únicamente si la compra fue exitosa
+      // Vaciar el carrito solo si la compra fue exitosa
       clearCart();
 
-      // Mostrar el historial de compras
-      router.push("/dashboard");
+      // Redirigir al Dashboard con el ID de la compra
+      router.push(`/dashboard?orderSuccess=${order.id}`);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Ocurrió un error al finalizar la compra.",
-      );
+      // Mostrar un mensaje comprensible si falla la conexión
+      if (err instanceof TypeError) {
+        setError(
+          "No pudimos conectar con el servidor. Tu compra no se completó. Inténtalo nuevamente más tarde.",
+        );
+      } else {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Ocurrió un error al finalizar la compra.",
+        );
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -80,6 +88,7 @@ export default function Cart() {
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-16">
+      {/* Encabezado */}
       <div className="mb-10">
         <span className="text-sm font-semibold uppercase tracking-wider text-blue-600">
           Tu compra
@@ -116,6 +125,7 @@ export default function Cart() {
       ) : (
         // Carrito con productos
         <div className="grid gap-8 lg:grid-cols-3">
+          {/* Listado de productos */}
           <section className="space-y-4 lg:col-span-2">
             {cart.map((product) => (
               <article
@@ -159,6 +169,7 @@ export default function Cart() {
             ))}
           </section>
 
+          {/* Resumen de compra */}
           <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-bold text-slate-900">
               Resumen de compra
@@ -191,6 +202,7 @@ export default function Cart() {
               </div>
             </div>
 
+            {/* Mensaje de error */}
             {error && (
               <div
                 role="alert"
@@ -200,6 +212,7 @@ export default function Cart() {
               </div>
             )}
 
+            {/* Vaciar carrito */}
             <button
               type="button"
               disabled={isProcessing}
@@ -212,6 +225,7 @@ export default function Cart() {
               Vaciar carrito
             </button>
 
+            {/* Finalizar compra */}
             <button
               type="button"
               onClick={handleCheckout}
