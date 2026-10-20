@@ -8,6 +8,37 @@ interface ProductDetailProps {
   }>;
 }
 
+// Obtener la imagen correspondiente a cada producto
+function getProductImage(name: string): string {
+  const productName = name.toLowerCase().trim();
+
+  if (productName.includes("iphone 11")) {
+    return "/images/iphone-11.jpg";
+  }
+
+  if (productName.includes("macbook air")) {
+    return "/images/macbook-air.jpg";
+  }
+
+  if (productName.includes("ipad pro")) {
+    return "/images/ipad-pro.jpg";
+  }
+
+  if (productName.includes("apple watch series 6")) {
+    return "/images/apple-watch-series-6.jpg";
+  }
+
+  if (productName.includes("airpods pro")) {
+    return "/images/airpods-pro.jpg";
+  }
+
+  if (productName.includes("homepod mini")) {
+    return "/images/homepod-mini.jpg";
+  }
+
+  return "/images/default.jpg";
+}
+
 export default async function ProductDetail({ params }: ProductDetailProps) {
   // Obtener el ID del producto desde la URL
   const { id } = await params;
@@ -27,6 +58,9 @@ export default async function ProductDetail({ params }: ProductDetailProps) {
     notFound();
   }
 
+  // Seleccionar la fotografía del producto
+  const imageUrl = getProductImage(product.name);
+
   return (
     <main className="mx-auto max-w-7xl px-6 py-16">
       <div className="mb-8">
@@ -40,11 +74,13 @@ export default async function ProductDetail({ params }: ProductDetailProps) {
       </div>
 
       <section className="grid gap-10 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm md:grid-cols-2">
-        {/* Imagen del producto */}
-        <div className="flex min-h-80 items-center justify-center rounded-xl bg-slate-100">
-          <span className="text-lg font-medium text-slate-400">
-            Imagen del producto
-          </span>
+        {/* Imagen real del producto */}
+        <div className="flex min-h-80 items-center justify-center overflow-hidden rounded-xl bg-slate-50 p-8">
+          <img
+            src={imageUrl}
+            alt={product.name}
+            className="h-80 w-full object-contain transition duration-300 hover:scale-105"
+          />
         </div>
 
         {/* Información del producto */}
@@ -58,7 +94,7 @@ export default async function ProductDetail({ params }: ProductDetailProps) {
           <p className="mt-4 leading-7 text-slate-600">{product.description}</p>
 
           <p className="mt-8 text-3xl font-bold text-slate-900">
-            ${product.price}
+            ${Number(product.price).toFixed(2)}
           </p>
 
           <p className="mt-2 text-sm font-medium text-green-600">
